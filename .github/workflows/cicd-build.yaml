@@ -1,0 +1,58 @@
+name: NetflixFronted Build
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: read
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repo code
+        uses: actions/checkout@v3
+
+      - name: Build and push image
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+        run: |
+          if [ -z "$DOCKER_USERNAME" ] || [ -z "$DOCKER_PASSWORD" ]; then
+            echo "Your DockerHub username and password should be set as secrets!!"
+            exit 1
+          fi
+          
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          
+          IMAGE_NAME=$DOCKER_USERNAME/netflix-frontend:${{ github.run_number }}
+          docker build -t $IMAGE_NAME .
+          docker push $IMAGE_NAME
+
+      - name: Checkout infrastructure repo
+        uses: actions/checkout@v3
+        with:
+          repository: lidorbashari/NetflixInfra
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          path: ./NetflixInfra
+          ref: main
+
+      - name: Update YAML manifests
+        run: |
+          IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/netflix-frontend:${{ github.run_number }}
+          cd ./NetflixInfra/k8s/NetflixFrontend 
+          yq e ".spec.template.spec.containers[0].image = \"$IMAGE_NAME\"" -i ./deployment.yaml
+      
+
+      - name: Commit and Push changes
+        run: |
+          cd ./NetflixInfra
+          git config --local user.email "github@action"
+          git config --local user.name "auto-update"
+          git add k8s/NetflixMovieCatalog/deployment.yaml
+          git commit -m "Update image to $IMAGE_NAME"
+          git push origin main
