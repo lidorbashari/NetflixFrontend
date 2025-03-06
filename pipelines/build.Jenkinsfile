@@ -12,7 +12,7 @@ pipeline {
             steps {
                 sh '''
 
-                    # build an image
+                    # build an imagek
                     docker build -t netflix-front .
                 '''
             }
