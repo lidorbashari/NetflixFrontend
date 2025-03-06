@@ -12,6 +12,7 @@ pipeline {
             steps {
                 sh '''
                     ls
+                    echo hi
                     # build an image
                     docker build -t netflix-front .
                 '''
