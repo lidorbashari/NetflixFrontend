@@ -11,7 +11,7 @@ pipeline {
         stage('Build app container') {
             steps {
                 sh '''
-
+                    ls
                     # build an image
                     docker build -t netflix-front .
                 '''
