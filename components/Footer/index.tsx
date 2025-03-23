@@ -8,7 +8,7 @@ export default function Footer() {
       <p>
         Made by{' '}
         <a href='https://github.com/ayushiee/nextflix' target='_blank' rel='noreferrer'>
-          <b>Ayushi Gupta and lidor</b>
+          <b>Ayushi Gupta and lidor bashari</b>
         </a>
       </p>
     </div>
