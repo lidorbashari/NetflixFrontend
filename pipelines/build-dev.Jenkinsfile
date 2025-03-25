@@ -45,7 +45,7 @@ pipeline {
         stage('Trigger Deploy') {
             steps {
                 build job: 'frontend-deploy-dev', wait: false, parameters: [
-                string(name: 'SERVICE_NAME', value: "NetflixFrontend"),
+                string(name: 'SERVICE_NAME', value: "NetflixFrontendDev"),
                 string(name: 'IMAGE_FULL_NAME_PARAM', value: "$DOCKER_USERNAME/$IMAGE_BASE_NAME:$IMAGE_TAG")
                 ]
             }
